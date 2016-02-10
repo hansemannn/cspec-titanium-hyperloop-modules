@@ -1,6 +1,6 @@
 # CSPEC 3 - Hyperloop modules in Titanium Mobile
 
-This [CSPEC](https://github.com/appcelerator/cspec) is for standardizing around Titanium MObile modules built with Hyperloop.
+This [CSPEC](https://github.com/appcelerator/cspec) proposes a standard for Titanium Mobile modules built with Hyperloop.
 
 ## Audience
 
@@ -8,11 +8,13 @@ The primary audience for this proposal are advanced developers using Hyperloop t
 
 ## Goals
 
-The goals are to come up with a standardizing way to build native modules for Titanium Mobile using Hyperloop. That covers a unified project- and file-structure as well as guides to migrate existing modules to the Hyperloop syntax.
+The goals are to come up with a standard way to build and distribute native modules for Titanium Mobile using Hyperloop. It covers a unified project- and file-structure as well as guides to migrate existing modules to the Hyperloop syntax.
 
 ## Description
 
-The problem is we currently have some platform specific ways to build modules which ends in different native module projects to maintain. Using Hyperloop would mean to have a platform specific structure to develop all platforms together, as well as a unified configuration file to specify author, license, version, guid etc.
+The problem is we currently have some platform specific ways to build modules which ends in different native module projects to maintain. Apart from [gitTio](http://gitt.io) we also have no standard way to distribute these modules.
+
+Using Hyperloop would mean to have a single module and configuration with platform specific folders. It would use NPM for dependency management and distribution.
 
 ## Proposal
 
@@ -27,41 +29,48 @@ The project structure needs to handle different development platforms as common 
 LICENSE
 README
 appc.js
-example/
-  app.js
+package.json
 docs/
   index.md
+example/
+  app.js
 src/
   ios/
     platform/
     assets/
-    thirdparty/
+    vendor/
   android/
     platform/
     assets/
-    thirdparty/
+    vendor/
   windows/
     platform/
     assets/
-    thirdparty/
+    vendor/
 ```
 
 ### File structure
 
 The file structure should be unified across platforms. Public methods should be exposed using CommonJS `exports` statements.
 
-### Configuration file
+### Package.json
 
-The configuration file should be similar to the `appc.js` specified [here](https://github.com/appcelerator/cspec-appc-appc.js). Common properties would also be:
-- module name
-- module author
-- module license
-- module version (per platform)
-- module guid
-- supported platforms
+For distribution via NPM the module requires a [package.json](https://docs.npmjs.com/files/package.json) file. It would hold information like:
+
+- name
+- author
+- license
+- version (shared by all platforms)
 - copyright
 - description
+
+### Appc.js
+
+The configuration file should be similar to the `appc.js` specified [here](https://github.com/appcelerator/cspec-appc-appc.js). It would contain information NPM does not need, but our build scripts do, like:
+
+- supported platforms
 - minimum Ti.SDK
+- native framework dependencies
 
 ### Built-in utilities/helper
 
@@ -88,20 +97,12 @@ module.exports = {
     // Basic configuration
     type: 'module',
     group: 'titanium',
-    author: 'Appcelerator',
-    copyright: 'Copyright (c) 2016 by Appcelerator',
-    license: 'Apache'
     
-    // These should not be edited
-    name: 'TiGoogleMaps',
-    moduleid: 'ti.googlemaps',
-    guid: '11111111-1111-1111-1111-111111111111',
     minsdk: 6.0.0,
 
     platforms: {
         ios: {
-            version: 1.0.2,
-            thirdparty: {
+            vendor: {
                 'MyFramework': {
                      // these can be an array or string
                      source: ['src'],
@@ -111,15 +112,28 @@ module.exports = {
             }
         },
         android: {
-            version: 1.0.1,
-            thirdparty: {}
+            vendor: {}
         },
         windows: {
-            version: 1.0.0,
-            thirdparty: {}
+            vendor: {}
         }
     }
 
+```
+
+And this is what the `package.json` could look like:
+
+```
+{
+    "name": "ti-mymodule",
+    "description": "Maps Module for Titanium",
+    "author": "Appcelerator",
+    "copyright": "Copyright (c) 2016 by Appcelerator",
+    "license": "Apache-2.0",
+    "engines": {
+        "titanium": ">=6.0.0"
+    }
+}
 ```
 
 ## TODO
@@ -128,7 +142,6 @@ The following items need to be resolved as part of this CSPEC:
 
 - Create new module template incorporating the proposed project- and file-structure
 - Expose internal utility methods and macros (iOS) to be used with Hyperloop
-- Implement new endpoints to submit a Hyerloop module
 - Make Hyperloop modules run in Titanium Mobile projects like any other (existing) module
 
 ## Timeline
@@ -137,10 +150,11 @@ The goal of this proposal is to implement in Q1 2016 and Titanium and Alloy if p
 
 ## Status
 
-12-29-2015 - Initial Draft
+- 01-10-2016 - Added NPM distribution
+- 12-29-2015 - Initial Draft
 
 ## Legal Stuff
 
-This proposal is non-binding and may not be implemented, may be implemented partially, differently or not at all. Any intellectual property developed as part of this proposal is owned and Copyright &copy; 2015 by Appcelerator, Inc. All Rights Reserved.
+This proposal is non-binding and may not be implemented, may be implemented partially, differently or not at all. Any intellectual property developed as part of this proposal is owned and Copyright &copy; 2016 by Appcelerator, Inc. All Rights Reserved.
 
 For more information about what a CSPEC is, please visit the [Community Specifications & Proposals Repo](https://github.com/appcelerator/cspec).
