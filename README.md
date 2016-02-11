@@ -57,7 +57,7 @@ The file structure should be unified across platforms. Public methods should be 
 
 For distribution via NPM the module requires a [package.json](https://docs.npmjs.com/files/package.json) file. It would hold information like:
 
-- name
+- name (with a required prefix, like `ti-` or `hyperloop-`)
 - author
 - license
 - version (shared by all platforms)
